@@ -2,14 +2,14 @@
 
 ## Tools and models
 
-OpenAI Codex helped extract the challenge requirements, plan the work, implement the two apps, and run verification. The session did not expose a specific model identifier. Verification used npm, the Node test runner, Jest, React Testing Library, Chrome via Playwright, and standalone Mailpit. No repo-specific agent instruction files were used.
+OpenAI Codex helped extract the challenge requirements, plan the work, implement the two apps, and run verification. The session did not expose a specific model identifier. Verification used npm, the Node test runner, Jest, React Testing Library, Chrome via Playwright, Docker Compose, and Mailpit. No repo-specific agent instruction files were used.
 
 ## Plan
 
 1. Scaffold two independent apps on a feature branch and check the Vite-to-Express connection.
 2. Implement and verify the featured products, category ranking, matching search, and product details.
 3. Add the enquiry form, validation, and SMTP delivery. Test with stubs and a real Mailpit inbox.
-4. Time a clean setup, review the code and docs, and prepare an open PR into `main`.
+4. Package both apps with Docker, time a clean setup, review the code and docs, and prepare an open PR into `main`.
 
 ## Prompts and decisions
 
@@ -22,4 +22,4 @@ OpenAI Codex helped extract the challenge requirements, plan the work, implement
 ## Corrections during verification
 
 - The initial backend dev command watched the dependency tree and hit a file-watcher limit. The startup check caught it. The revised command starts the TypeScript entry point directly and requires a restart after changes.
-- Docker was unavailable on the review machine. The SMTP walkthrough used the standalone Mailpit binary and verified the captured message before shutting down the temporary services.
+- The first SMTP walkthrough used standalone Mailpit. The Docker walkthrough initially hit an occupied Mailpit port, so Compose gained host-port overrides. A second run verified five featured products and a successful browser enquiry on alternate ports.

@@ -1,22 +1,29 @@
 # Curato
 
-Curato is a product catalogue proof of concept. The home page shows five featured products supplied by the backend.
+A product catalogue with featured products, category browsing, search, product details, and email enquiries.
 
 ## Run with Docker Compose
 
-From the repository root, run:
+With Docker running and internet access available, run this command from the repository root.
 
 ```sh
 docker compose up --build
 ```
 
-Open the catalogue at http://127.0.0.1:8080 and Mailpit at http://127.0.0.1:8025. The backend fetches catalogue data from Fake Store API, so the stack needs internet access. Stop the stack with `docker compose down`.
+| Service | URL |
+|---|---|
+| Catalogue | http://127.0.0.1:8080 |
+| Mailpit inbox | http://127.0.0.1:8025 |
 
-The default host ports are 8080 for the catalogue, 1025 for SMTP, and 8025 for the Mailpit inbox. If a port is occupied, set `FRONTEND_PORT`, `MAILPIT_SMTP_PORT`, or `MAILPIT_UI_PORT` in a root `.env` file. You can also set `SMTP_FROM` or `SALES_EMAIL` there to override the sender or inbox.
+Open a product, select **Enquire**, and submit a name and email address. The page shows a thank-you after Mailpit accepts the message. The inbox captures the product and contact details in an email addressed to `sales@curato.test` by default.
+
+If a default port is occupied or you want to change the sender or sales inbox, copy [.env.example](.env.example) to `.env` at the repository root and update the relevant values. Port overrides change the host ports. The backend continues to connect to Mailpit over the Compose network.
+
+Run `docker compose down` from the repository root to stop the stack. Local review requires no paid service or account.
 
 ## Run the apps independently
 
-Use Node.js 24, npm, and either Docker Compose or the standalone Mailpit binary. The catalogue needs internet access to reach Fake Store API. Run each app in a separate terminal from the repository root.
+Use Node.js 24 and npm. Run each app in its own terminal from the repository root.
 
 **Backend**
 
@@ -32,24 +39,21 @@ cd frontend
 npm ci && npm run dev
 ```
 
-Open http://localhost:5173 and check that five featured products appear. The API health endpoint is at http://127.0.0.1:3001/api/health. Both apps support `npm run build`. The frontend serves its build with `npm run preview`, and the backend runs its build with `npm start`.
+Open http://localhost:5173. Express defaults to http://127.0.0.1:3001. To override app settings, copy [backend/.env.example](backend/.env.example) or [frontend/.env.example](frontend/.env.example) to `.env` in the corresponding directory. Keep the frontend proxy target aligned with the backend port. Restart Express after backend source changes.
 
-Both apps run with defaults. To override the API port or proxy target, copy the relevant app's `.env.example` to `.env` and keep the two settings aligned.
-
-Start Mailpit with `docker compose up -d mailpit`. If you have the standalone Mailpit binary, run `mailpit --listen 127.0.0.1:8025 --smtp 127.0.0.1:1025`. Express sends enquiry email to Mailpit on SMTP port 1025 by default. Open a product, select **Enquire**, and submit your name and email. After the page shows a thank-you, open the Mailpit inbox at http://127.0.0.1:8025 to see the message addressed to `sales@curato.test`. Backend SMTP settings are listed in `backend/.env.example`.
+For enquiries, start Mailpit from the repository root with `docker compose up -d mailpit`, or use a standalone Mailpit binary with `mailpit --listen 127.0.0.1:8025 --smtp 127.0.0.1:1025`. If you override Mailpit’s published SMTP port, set `SMTP_PORT` in the standalone backend’s `.env` to match.
 
 ## Stack
 
-React, TypeScript, Vite, and Tailwind CSS provide a small web client and fast local feedback. Node.js, Express, and TypeScript provide an independently runnable API with a straightforward place to implement catalogue and enquiry logic.
+React, TypeScript, Vite, and Tailwind CSS keep the web client small and make it quick to develop and build. Express and TypeScript give the Node.js backend a clear place to own catalogue rules, input validation, and email delivery. The browser requests catalogue JSON from Express through relative `/api` URLs. Express fetches it from Fake Store API.
 
-## Catalogue walkthrough
+## Verification
 
-Choose a category in the header to see its three highest-rated products followed by the remaining products. Submit a phrase in the search box to match titles and descriptions. Open a product tile to see its details. Each category and product has a direct URL.
-
-Run `npm test` in `backend/` to check catalogue behavior, enquiry validation, and SMTP acceptance handling. Run `npm test` in `frontend/` to check the enquiry form with Jest and React Testing Library. Both suites run without internet access. The backend endpoint tests open a temporary loopback port.
+- The home page shows five featured products. Category pages show the top three by rating, then the remaining products. Search matches titles and descriptions. Product tiles open a detail page with a shareable URL.
+- Run `npm test` in `frontend/` for Jest and React Testing Library form tests. Run `npm test` in `backend/` for catalogue, validation, endpoint, and SMTP tests. The backend tests use a temporary loopback port and stub the external services.
+- Each app supports `npm run build` and `npm run format:check`.
+- A no-cache Compose build, startup, and enquiry smoke test took **24 seconds** with Docker and the base images already available. I used alternate host ports because a local Mailpit instance was already running.
 
 ## Time spent
 
-Approximately 2 hours 30 minutes across planning, building, testing, and review. Time was tracked as a total.
-
-A clean setup reached a successful browser enquiry in about 22 seconds on the review machine. This included installing both apps from their lockfiles with an empty npm cache and starting both apps and Mailpit. Node.js, Chrome, and the standalone Mailpit binary were already available.
+Approximately **2 hours 30 minutes** across planning, building, testing, and review.
