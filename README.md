@@ -2,7 +2,19 @@
 
 Curato is a product catalogue proof of concept. The home page shows five featured products supplied by the backend.
 
-## Local setup
+## Run with Docker Compose
+
+From the repository root, run:
+
+```sh
+docker compose up --build
+```
+
+Open the catalogue at http://127.0.0.1:8080 and Mailpit at http://127.0.0.1:8025. The backend fetches catalogue data from Fake Store API, so the stack needs internet access. Stop the stack with `docker compose down`.
+
+The default host ports are 8080 for the catalogue, 1025 for SMTP, and 8025 for the Mailpit inbox. If a port is occupied, set `FRONTEND_PORT`, `MAILPIT_SMTP_PORT`, or `MAILPIT_UI_PORT` in a root `.env` file. You can also set `SMTP_FROM` or `SALES_EMAIL` there to override the sender or inbox.
+
+## Run the apps independently
 
 Use Node.js 24, npm, and either Docker Compose or the standalone Mailpit binary. The catalogue needs internet access to reach Fake Store API. Run each app in a separate terminal from the repository root.
 

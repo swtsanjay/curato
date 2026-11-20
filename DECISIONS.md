@@ -24,3 +24,7 @@ Add a short-lived catalogue cache with a stale-data fallback, browser regression
 ## Dependency review
 
 The runtime dependency audits reported zero advisories in both apps. The full frontend audit reported moderate advisories in Jest's transitive tooling. The audit proposed a Jest major-version downgrade, so this submission keeps the tested Jest version and records the finding for follow-up.
+
+## Containers
+
+The frontend image serves the Vite build with Nginx, which forwards `/api/` to Express and serves the React entry point for catalogue URLs. Compose connects Express to Mailpit over its internal network. Express binds to loopback for standalone development and to all container interfaces inside its image.
